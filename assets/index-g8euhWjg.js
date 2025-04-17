@@ -13498,8 +13498,8 @@ const getCardType = (cardNumber) => {
   return "default";
 };
 const CARD_TYPE_IMAGES_PATH = {
-  visa: "/Visa.png",
-  masterCard: "/Mastercard.png",
+  visa: "./Visa.png",
+  masterCard: "./Mastercard.png",
   default: ""
 };
 function CardPreview({ cardNumber, cardValidityPeriod }) {
