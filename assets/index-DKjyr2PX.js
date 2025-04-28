@@ -17461,7 +17461,7 @@ function createBrowserRouter(routes, opts) {
     unstable_getContext: opts == null ? void 0 : opts.unstable_getContext,
     future: opts == null ? void 0 : opts.future,
     history: createBrowserHistory({ window: opts == null ? void 0 : opts.window }),
-    hydrationData: parseHydrationData(),
+    hydrationData: (opts == null ? void 0 : opts.hydrationData) || parseHydrationData(),
     routes,
     mapRouteProperties,
     hydrationRouteProperties,
@@ -20098,16 +20098,21 @@ const Button = newStyled.button`
   cursor: pointer;
   border-radius: 5px;
 `;
-const router = createBrowserRouter([
+const router = createBrowserRouter(
+  [
+    {
+      path: "/",
+      element: /* @__PURE__ */ jsxRuntimeExports.jsx(Home, {})
+    },
+    {
+      path: "/completion",
+      element: /* @__PURE__ */ jsxRuntimeExports.jsx(Completion, {})
+    }
+  ],
   {
-    path: "/",
-    element: /* @__PURE__ */ jsxRuntimeExports.jsx(Home, {})
-  },
-  {
-    path: "/completion",
-    element: /* @__PURE__ */ jsxRuntimeExports.jsx(Completion, {})
+    basename: "/react-payments"
   }
-]);
+);
 function Router() {
   return /* @__PURE__ */ jsxRuntimeExports.jsx(RouterProvider2, { router });
 }
