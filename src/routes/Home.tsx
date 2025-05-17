@@ -3,31 +3,30 @@ import { CARD_COMPANY_NAME } from '../components/constants/cardCompany';
 import styled from '@emotion/styled';
 import CardForm from '../components/cardInfoForm/CardForm/CardForm';
 import CardPreview from '../components/CardPreview/CardPreview';
+import useCardNumber from '../hooks/useCardNumber';
+import useCardCVC from '../hooks/useCardCVC';
+import useCardValidityPeriod from '../hooks/useCardValidityPeriod';
+import useCardPassword from '../hooks/useCardPassword';
 
 function Home() {
-  const [cardNumber, setCardNumber] = useState({
-    value: ['', '', '', ''],
-    isErrors: [false, false, false, false],
-    errorMessage: '',
+  const [stepShow, setStepShow] = useState({
+    cardCompany: false,
+    cardCVC: false,
+    cardPassword: false,
   });
+
+  const onChangeStep = (step: 'cardCompany' | 'cardCVC' | 'cardPassword') => {
+    setStepShow((prev) => ({ ...prev, [step]: true }));
+  };
+
+  const { cardNumber, onChangeCardNumber } = useCardNumber(onChangeStep);
   const [cardCompany, setCardCompany] = useState<
     keyof typeof CARD_COMPANY_NAME | undefined
   >();
-  const [cardValidityPeriod, setCardValidityPeriod] = useState({
-    value: { month: '', year: '' },
-    isError: { month: false, year: false },
-    errorMessage: '',
-  });
-  const [cardCVC, setCardCVC] = useState({
-    value: '',
-    isError: false,
-    errorMessage: '',
-  });
-  const [cardPassword, setCardPassword] = useState({
-    value: '',
-    isError: false,
-    errorMessage: '',
-  });
+  const { cardValidityPeriod, onChangeCardValidityPeriod } =
+    useCardValidityPeriod(onChangeStep);
+  const { cardCVC, onChangeCardCVC } = useCardCVC(onChangeStep);
+  const { cardPassword, onChangeCardPassword } = useCardPassword();
 
   const isCardCompany = (v: string): v is keyof typeof CARD_COMPANY_NAME => {
     return v in CARD_COMPANY_NAME;
@@ -58,11 +57,12 @@ function Home() {
       />
       <CardForm
         {...cardInfo}
-        setCardNumber={setCardNumber}
+        stepShow={stepShow}
+        onChangeCardNumber={onChangeCardNumber}
         handleChangeCardCompany={handleChangeCardCompany}
-        setCardValidityPeriod={setCardValidityPeriod}
-        setCardCVC={setCardCVC}
-        setCardPassword={setCardPassword}
+        onChangeCardValidityPeriod={onChangeCardValidityPeriod}
+        onChangeCardCVC={onChangeCardCVC}
+        onChangeCardPassword={onChangeCardPassword}
       />
     </AppLayout>
   );

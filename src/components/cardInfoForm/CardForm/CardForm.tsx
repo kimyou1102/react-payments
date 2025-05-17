@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from '@emotion/styled';
 import CardInputSection from '../cardInfoInputSections/CardInputSection/CardInputSection';
@@ -8,7 +7,6 @@ import CardValidityPeriodField from '../cardInfoFields/CardValidityPeriodField/C
 import CardCompanySection from '../cardInfoInputSections/CardCompanySection/CardCompanySection';
 import CardCVCSection from '../cardInfoInputSections/CardCVCSection/CardCVCSection';
 import CardPasswordSection from '../cardInfoInputSections/CardPasswordSection/CardPasswordSection';
-import { validateExpiry } from '../../../utils/validateExpiry';
 
 interface CardFormProps {
   cardNumber: {
@@ -38,35 +36,22 @@ interface CardFormProps {
     isError: boolean;
     errorMessage: string;
   };
-  setCardNumber: (cardNumber: {
-    value: string[];
-    isErrors: boolean[];
-    errorMessage: string;
-  }) => void;
+  stepShow: {
+    cardCompany: boolean;
+    cardCVC: boolean;
+    cardPassword: boolean;
+  };
+  onChangeCardNumber: (
+    e: React.ChangeEvent<HTMLInputElement>,
+    i: number,
+  ) => void;
+  onChangeCardCVC: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChangeCardValidityPeriod: (
+    e: React.ChangeEvent<HTMLInputElement>,
+    type: 'month' | 'year',
+  ) => void;
+  onChangeCardPassword: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleChangeCardCompany: (e: React.ChangeEvent<HTMLSelectElement>) => void;
-  setCardValidityPeriod: React.Dispatch<
-    React.SetStateAction<{
-      value: {
-        month: string;
-        year: string;
-      };
-      isError: {
-        month: boolean;
-        year: boolean;
-      };
-      errorMessage: string;
-    }>
-  >;
-  setCardCVC: (cvc: {
-    value: string;
-    isError: boolean;
-    errorMessage: string;
-  }) => void;
-  setCardPassword: (password: {
-    value: string;
-    isError: boolean;
-    errorMessage: string;
-  }) => void;
 }
 
 function CardForm({
@@ -75,110 +60,15 @@ function CardForm({
   cardCompany,
   cardValidityPeriod,
   cardPassword,
-  setCardNumber,
-  setCardCVC,
+  onChangeCardNumber,
+  onChangeCardCVC,
+  onChangeCardValidityPeriod,
   handleChangeCardCompany,
-  setCardValidityPeriod,
-  setCardPassword,
+  onChangeCardPassword,
+  stepShow,
 }: CardFormProps) {
-  const [stepShow, setStepShow] = useState({
-    cardCompany: false,
-    cardCVC: false,
-    cardPassword: false,
-  });
-
-  const onChangeStep = (step: 'cardCompany' | 'cardCVC' | 'cardPassword') => {
-    setStepShow((prev) => ({ ...prev, [step]: true }));
-  };
-
-  const onChangeCardNumber = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    i: number,
-  ) => {
-    const copy = [...cardNumber.value];
-    copy[i] = e.target.value;
-
-    const errors = copy.map((v) => v.length !== 4);
-    const message = errors.some(Boolean)
-      ? '카드 번호는 4자리씩 입력해야 합니다.'
-      : '';
-
-    setCardNumber({
-      value: copy,
-      isErrors: errors,
-      errorMessage: message,
-    });
-
-    if (!errors.some(Boolean)) {
-      onChangeStep('cardCompany');
-    }
-  };
-
-  const onChangeCardCVC = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
-
-    const isError = value.length !== 3;
-    const message = isError ? 'CVC는 3자리 숫자여야 합니다.' : '';
-
-    setCardCVC({
-      value: value,
-      isError: isError,
-      errorMessage: message,
-    });
-    if (!isError) {
-      onChangeStep('cardPassword');
-    }
-  };
-
-  const onChangeCardValidityPeriod = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    type: 'month' | 'year',
-  ) => {
-    const copy = { ...cardValidityPeriod.value };
-    const { value } = e.target;
-
-    if (type === 'month') copy.month = value;
-    if (type === 'year') copy.year = value;
-
-    const { message, field } = validateExpiry(copy.month, copy.year, type);
-
-    const isError = field
-      ? {
-          month: type === 'month' ? false : false,
-          year: false,
-          [field]: true,
-        }
-      : { month: false, year: false };
-
-    setCardValidityPeriod((prev) => ({
-      ...prev,
-      value: {
-        ...prev.value,
-        [type]: value,
-      },
-      isError: isError,
-      errorMessage: message,
-    }));
-
-    if (!isError.month && !isError.year) {
-      onChangeStep('cardCVC');
-    }
-  };
-
-  const onChangeCardPassword = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
-
-    const isError = value.length > 0 && value.length < 2;
-    const message = isError ? '비밀번호는 두자리 입니다.' : '';
-
-    setCardPassword({
-      value: value,
-      isError: isError,
-      errorMessage: message,
-    });
-  };
-
   const navigate = useNavigate();
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const isValid = checkIsValid();
